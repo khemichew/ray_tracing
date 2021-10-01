@@ -1,7 +1,8 @@
+#include "header/utilities.h"
+#include "header/camera.h"
 #include "header/colour.h"
 #include "header/hittables.h"
 #include "header/sphere.h"
-#include "header/utilities.h"
 #include <cmath>
 #include <iostream>
 
@@ -13,6 +14,8 @@ double hit_sphere(const point3 &center, double radius, const Ray &r);
 2) Determine which objects the ray intersects;
 3) Compute a colour for the intersection point(s).
 */
+
+// TODO: Stratification
 
 Colour ray_colour(const Ray &r, const Hittables &world) {
   hit_record rec;
@@ -64,6 +67,7 @@ int main() {
   const auto aspect_ratio = 16.0 / 9.0;
   const int image_width = 400;
   const int image_height = static_cast<int>(image_width / aspect_ratio);
+  const int samples_per_pixel = 100;
 
   // World
   Hittables world;
@@ -73,15 +77,7 @@ int main() {
   world.add(sphere2);
 
   // Camera
-  auto viewport_height = 2.0;
-  auto viewport_width = aspect_ratio * viewport_height;
-  auto focal_length = 1.0;
-
-  auto origin = point3(0, 0, 0);
-  auto horizontal = vec3(viewport_width, 0, 0);
-  auto vertical = vec3(0, viewport_height, 0);
-  auto lower_left_corner =
-      origin - horizontal / 2 - vertical / 2 - vec3(0, 0, focal_length);
+  Camera camera;
 
   // TODO: try to produce more image types than PPM
   // 	   eg. stb_image.h at https://github.com/nothings/stb
@@ -93,13 +89,15 @@ int main() {
     std::cerr << "\rScanlines remaining: " << j << '\n' << std::flush;
 
     for (int i = 0; i < image_width; i++) {
-      auto u = static_cast<double>(i) / (image_width - 1);
-      auto v = static_cast<double>(j) / (image_height - 1);
-      Ray r = Ray(origin,
-                  lower_left_corner + u * horizontal + v * vertical - origin);
+      Colour pixel = Colour(0,0,0);
+      for (int s = 0; s < samples_per_pixel; s++) {
+        auto u = (i + random_double()) / (image_width - 1);
+        auto v = (j + random_double()) / (image_height - 1);
+        Ray r = camera.get_ray(u, v);
+        pixel += ray_colour(r, world);
+      }
 
-      Colour pixel = ray_colour(r, world);
-      write_colour(std::cout, pixel);
+      write_colour(std::cout, pixel, samples_per_pixel);
     }
   }
 
