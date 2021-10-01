@@ -23,6 +23,13 @@ inline double random_double() {
 }
 
 /*
+ * Returns a random real number in [min, max).
+ */
+inline double random_double(double min, double max) {
+  return min + (max - min) * random_double();
+}
+
+/*
  * Restricts the value of x in range [min, max].
  */
 inline double clamp(double x, double min, double max) {

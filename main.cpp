@@ -17,10 +17,19 @@ double hit_sphere(const point3 &center, double radius, const Ray &r);
 
 // TODO: Stratification
 
-Colour ray_colour(const Ray &r, const Hittables &world) {
+Colour ray_colour(const Ray &r, const Hittables &world, int depth) {
   hit_record rec;
-  if (world.hit(r, 0, infinity, rec)) {
-    return 0.5 * (rec.normal + Colour(1.0, 1.0, 1.0));
+
+  // No more light reflected
+  if (depth <= 0) {
+    return Colour(0, 0, 0);
+  }
+
+  // Hittable objects absorb/reflect half the light energy on each bounce
+  if (world.hit(r, 0.001, infinity, rec)) {
+    point3 target = rec.p + rec.normal + random_unit_vector();
+    return 0.5 * ray_colour(Ray(rec.p, target - rec.p), world, depth - 1);
+//    return 0.5 * (rec.normal + Colour(1.0, 1.0, 1.0));
   }
 
   // point3 sphere_center = point3(0, 0, -1);
@@ -68,6 +77,7 @@ int main() {
   const int image_width = 400;
   const int image_height = static_cast<int>(image_width / aspect_ratio);
   const int samples_per_pixel = 100;
+  const int max_depth = 50;
 
   // World
   Hittables world;
@@ -90,11 +100,12 @@ int main() {
 
     for (int i = 0; i < image_width; i++) {
       Colour pixel = Colour(0,0,0);
+
       for (int s = 0; s < samples_per_pixel; s++) {
         auto u = (i + random_double()) / (image_width - 1);
         auto v = (j + random_double()) / (image_height - 1);
         Ray r = camera.get_ray(u, v);
-        pixel += ray_colour(r, world);
+        pixel += ray_colour(r, world, max_depth);
       }
 
       write_colour(std::cout, pixel, samples_per_pixel);
