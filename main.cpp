@@ -27,7 +27,7 @@ Colour ray_colour(const Ray &r, const Hittables &world, int depth) {
 
   // Hittable objects absorb/reflect half the light energy on each bounce
   if (world.hit(r, 0.001, infinity, rec)) {
-    point3 target = rec.p + rec.normal + random_unit_vector();
+    point3 target = rec.p + random_in_hemisphere(rec.normal);
     return 0.5 * ray_colour(Ray(rec.p, target - rec.p), world, depth - 1);
 //    return 0.5 * (rec.normal + Colour(1.0, 1.0, 1.0));
   }
