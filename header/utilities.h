@@ -3,13 +3,13 @@
 #include <limits>
 #include <random>
 
-// Constants 
+// Constants
 const double infinity = std::numeric_limits<double>::infinity();
 const double pi = 3.1415926535897932385;
 
-// Utility methods 
+// Utility methods
 inline double degrees_to_radians(double degrees) {
-	return degrees * pi / 180.0;
+  return degrees * pi / 180.0;
 }
 
 /*
@@ -42,6 +42,6 @@ inline double clamp(double x, double min, double max) {
   return x;
 }
 
-// Common headers 
+// Common headers
 #include "ray.h"
 #include "vec3.h"

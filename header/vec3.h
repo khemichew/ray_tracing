@@ -42,6 +42,13 @@ public:
   double length_squared() const {
     return e[0] * e[0] + e[1] * e[1] + e[2] * e[2];
   }
+
+  /* Returns true if all sub-coordinates of the vector is smaller than 10^(-8).
+   */
+  bool near_zero() const {
+    auto s = 1e-8;
+    return (std::abs(x()) < s) && (std::abs(y()) < s) && (std::abs(z()) < s);
+  }
 };
 
 // Type classes for vec3
@@ -105,7 +112,7 @@ inline vec3 random_unit_vector() {
   return unit_vector(random_in_unit_sphere());
 }
 
-inline vec3 random_in_hemisphere(const vec3& normal) {
+inline vec3 random_in_hemisphere(const vec3 &normal) {
   vec3 in_unit_sphere = random_in_unit_sphere();
 
   // Uniform scatter direction for all angles away from the hit point
@@ -114,4 +121,8 @@ inline vec3 random_in_hemisphere(const vec3& normal) {
   } else {
     return -in_unit_sphere;
   }
+}
+
+inline vec3 reflect(const vec3 &v, const vec3 &normal) {
+  return v - 2 * dot(v, normal) * normal;
 }

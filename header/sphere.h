@@ -1,44 +1,49 @@
 #pragma once
 
-#include "vec3.h"
+#include <utility>
+
 #include "hittable.h"
+#include "vec3.h"
 
 class Sphere : public Hittable {
 private:
-	point3 center;
-	double radius;
+  point3 center;
+  double radius;
+  std::shared_ptr<Material> material_ptr;
 
 public:
-	Sphere() {}
-	Sphere(point3 center, double r) : center(center), radius(r) {};
+  Sphere(point3 center, double r, std::shared_ptr<Material> material)
+      : center(center), radius(r), material_ptr(std::move(material)){};
 
-	virtual bool hit(const Ray& r, double t_min, double t_max, hit_record& rec) const override {
-		vec3 oc = r.origin() - center;
-		auto a = r.direction().length_squared();
-		auto half_b = dot(oc, r.direction());
-		auto c = oc.length_squared() - radius * radius;
+  bool hit(const Ray &r, double t_min, double t_max,
+           hit_record &rec) const override {
+    vec3 oc = r.origin() - center;
+    auto a = r.direction().length_squared();
+    auto half_b = dot(oc, r.direction());
+    auto c = oc.length_squared() - radius * radius;
 
-		auto discriminant = half_b * half_b - a * c;
-		if (discriminant < 0) {
-			return false;
-		}
+    auto discriminant = half_b * half_b - a * c;
+    if (discriminant < 0) {
+      return false;
+    }
 
-		auto sqrtd = sqrt(discriminant);
+    auto sqrtd = sqrt(discriminant);
 
-		// Find the nearest root that lies in the acceptable range.
-		auto root = (-half_b - sqrtd) / a;
-		if (root < t_min || root > t_max) {
-			root = (-half_b + sqrtd) / a;
-			if (root < t_min || root > t_max) {
-				return false;
-			}
-		}
+    // Find the nearest root that lies in the acceptable range.
+    auto root = (-half_b - sqrtd) / a;
+    if (root < t_min || root > t_max) {
+      root = (-half_b + sqrtd) / a;
+      if (root < t_min || root > t_max) {
+        return false;
+      }
+    }
 
-		rec.t = root;
-		rec.p = r.at(rec.t);
-		vec3 outward_normal = (rec.p - center) / radius;
-		rec.set_face_normal(r, outward_normal);
+    rec.t = root;
+    rec.p = r.at(rec.t);
+    vec3 outward_normal = (rec.p - center) / radius;
+    rec.set_face_normal(r, outward_normal);
+    rec.material_ptr = material_ptr;
 
-		return true;
-	}
+    return true;
+  }
 };
