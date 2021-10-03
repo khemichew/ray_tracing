@@ -8,6 +8,7 @@ private:
   vec3 dir;
 
 public:
+  Ray() = default;
   Ray(const point3 &origin, const vec3 &direction)
       : orig(origin), dir(direction) {}
 

@@ -12,6 +12,7 @@ private:
   std::shared_ptr<Material> material_ptr;
 
 public:
+  Sphere() = default;
   Sphere(point3 center, double r, std::shared_ptr<Material> material)
       : center(center), radius(r), material_ptr(std::move(material)){};
 
